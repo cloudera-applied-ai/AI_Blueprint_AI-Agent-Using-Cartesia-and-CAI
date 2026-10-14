@@ -1,188 +1,319 @@
-# Cloudera Blueprint: AI Agent Using Cartesia and CAI
+# Cloudera Blueprint: CDP Agent Gateway
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](requirements.txt)
-[![Cloudera Blueprint](https://img.shields.io/badge/Cloudera-Blueprint-f96702.svg)](METADATA.yaml)
-[![Stars](https://img.shields.io/github/stars/cloudera-applied-ai/AI_Blueprint_AI-Agent-Using-Cartesia-and-CAI?logo=github&cacheSeconds=300)](https://github.com/cloudera-applied-ai/AI_Blueprint_AI-Agent-Using-Cartesia-and-CAI/stargazers)
-[![Forks](https://img.shields.io/github/forks/cloudera-applied-ai/AI_Blueprint_AI-Agent-Using-Cartesia-and-CAI?logo=github&cacheSeconds=300)](https://github.com/cloudera-applied-ai/AI_Blueprint_AI-Agent-Using-Cartesia-and-CAI/network/members)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](pyproject.toml)
+[![Author-Athul Prasad](https://img.shields.io/badge/Author-Athul%20Prasad-555555)]()
+[![Stars](https://img.shields.io/github/stars/BrooksIan/CDPAgentGateway?logo=github)](https://github.com/BrooksIan/CDPAgentGateway/stargazers)
+[![Forks](https://img.shields.io/github/forks/BrooksIan/CDPAgentGateway?logo=github)](https://github.com/BrooksIan/CDPAgentGateway/network/members)
+[![Watchers](https://img.shields.io/github/watchers/BrooksIan/CDPAgentGateway?logo=github)](https://github.com/BrooksIan/CDPAgentGateway/watchers)
 
-> Real-time **voice AI** for phone-based customer support: live speech transcription, caller account context, an LLM on **Cloudera AI Inference Service**, and spoken replies — orchestrated end to end from a single **CML Application**, with **Cartesia** (and swappable STT/TTS) in the reference wiring.
+![CDP Agent Gateway catalog cover](images/AMP_thumbnail.jpg)
+
+**Agent governance** for [Cloudera Data Platform](https://www.cloudera.com/). Third-party agents present [Apache Knox](https://knox.apache.org/) JWTs at a north-south gateway. They never talk to Livy, HiveServer2, Impala, Ozone, or NiFi hostnames. Ranger stays authorization. Catalog fields live in [`METADATA.yaml`](METADATA.yaml).
+
+This repo follows the [Cloudera Blueprints Standard](https://github.com/kevinbtalbert/Cloudera-Blueprints-Standard). After reading this page you should know what the blueprint does, who it is for, and how to run the local demo.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Demo](#demo)
 - [Use Case](#use-case)
+- [How this compares to AI gateways](#how-this-compares-to-ai-gateways)
 - [Key Features](#key-features)
-- [Quickstart / Guide](#quickstart--guide)
-- [Architecture / Software Components](#architecture--software-components)
+- [Quickstart](#quickstart)
+- [Software Components](#software-components)
 - [Target Audience](#target-audience)
 - [Repository Structure](#repository-structure)
 - [Prerequisites](#prerequisites)
 - [Hardware Requirements](#hardware-requirements)
 - [Documentation](#documentation)
 - [License](#license)
-- [Disclaimer](#disclaimer)
 
 ## Overview
 
-A real-time voice AI agent for phone-based customer support: a caller dials
-a phone number, their speech is transcribed live, enriched with their
-account context, sent to an LLM served by Cloudera AI Inference Service, and
-the reply is spoken back to them — end to end, orchestrated by a single
-[CML Application](https://docs.cloudera.com/machine-learning/cloud/applications/topics/ml-applications.html).
-It's built to show how Cloudera AI Inference Service slots into a live,
-latency-sensitive conversational pipeline alongside third-party telephony,
-speech-to-text, and text-to-speech services. The speech and telephony stack
-shown (Twilio, Deepgram, Cartesia) is one example wiring, not a requirement —
-the pattern works with any TTS/STT vendor you already use or are evaluating;
-the constant is Cloudera AI Inference Service driving the conversation.
+CDP Agent Gateway is **agent governance** for Cloudera Data Platform. Cursor, Claude, and other MCP hosts can run Spark, Hive, and Impala without learning cluster topology and without a parallel credential path. Apache APISIX terminates agent HTTP, validates Knox-issued RS256 JWTs, and forwards the same bearer into Knox `cdp-proxy-token` **Livy for Spark 3**. Agents use MCP at `/mcp/spark`. Operators can `GET` Livy for tests and stage job files with **WebHDFS** (`/cdp/webhdfs*`). Knox Trusted Proxy and Apache Ranger remain the authorization source of truth. Operator quotas, burst caps, and audit join record which agent product and which Knox user called which tool.
+
+Hive is inventoried (`gateway jdbc add`) and agents use read-only MCP at `/mcp/hive`. Impala uses read-only MCP at `/mcp/impala`. `/cdp/hive` and `/cdp/impala` are not agent routes. Ozone and NiFi stay unpublished. Cloudera value is unchanged identity and data policy: agents do not get a parallel credential path into the lakehouse.
 
 ## Demo
 
-No recorded Reprise walkthrough yet — TODO once one is produced.
+A recorded Reprise walkthrough is not published yet. The current path is the local Docker stack in [Quickstart](#quickstart): mock Knox, APISIX on `localhost:9080`, Spark MCP at `/mcp/spark`, read-only Hive MCP at `/mcp/hive`, read-only Impala MCP at `/mcp/impala`, operator admin UI on `127.0.0.1:9090`. Pytest covers missing bearer, `alg=none`, expired tokens, subject forwarding, and MCP tool list. `--mint` is the lab JWT only; live Knox uses `gateway token set`.
 
-In the meantime, the app ships its own live demo: the `/dashboard` page
-lights up in real time as a call moves through Twilio → STT → LLM → TTS, and
-its "simulate" trigger (`POST /dashboard/simulate`) plays a canned call
-through that same dashboard with no Twilio call required, for rehearsing
-without live credentials.
+![Operator console: path status, health, and UTC-day usage](images/admin-overview.png)
+
+![Default quota and per-user override](images/admin-quotas.png)
+
+![UTC-day usage by Knox sub and audit join](images/admin-usage-audit.png)
+
+![Activity log keyed by Knox user and request id](images/admin-activity.png)
+
+The admin console is for operators, not MCP hosts. Full walkthrough: [docs/admin.md](docs/admin.md).
+
+Third-party agents are demonstrated with the Jupyter notebooks in [`examples/agent/`](examples/agent/README.md), not the operator CLI. [`third_party_agent.ipynb`](examples/agent/third_party_agent.ipynb) is a scripted MCP host (the same POST JSON-RPC a Cursor or Claude host would send). [`langgraph_agent.ipynb`](examples/agent/langgraph_agent.ipynb) shows **LangGraph**: a ReAct agent bound to the same Spark, Hive, and Impala tools. Both present a Knox JWT and never call cluster APIs directly.
+
+![LangGraph agent architecture](images/LangChainAgentERDiagram.jpeg)
+
+### LangGraph request sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User / Agent App
+    participant LG as LangGraph Agent
+    participant LLM as Cloudera Inference Service (LLM)
+    participant AGW as APISIX Agent Gateway
+    participant MCP as MCP Adapter (Spark/Hive/Impala)
+    participant K as Apache Knox
+    participant CDP as CDP Service
+
+    U->>LG: Ask data question
+    LG->>LLM: Reason over prompt
+    LLM-->>LG: Tool call decision
+    LG->>AGW: POST /mcp/* (JWT + X-Agent-Key)
+    AGW->>AGW: Verify Knox JWT + caller key
+    AGW->>MCP: Forward JSON-RPC tool call
+    MCP->>K: Forward bearer unchanged
+    K->>CDP: Enforce Ranger as Knox subject
+    CDP-->>K: Data / job status / logs
+    K-->>MCP: Service response
+    MCP-->>AGW: JSON-RPC result
+    AGW-->>LG: Tool result
+    LG->>LLM: Continue reasoning with tool output
+    LLM-->>LG: Final answer
+    LG-->>U: Response
+```
+
+### Identity and trust boundaries
+
+![Identity and trust boundaries](images/IdentityandTrustBoundaries.jpeg)
+
+### Exposed and blocked routes
+
+```mermaid
+flowchart TB
+    req[Agent HTTP request] --> path{Requested path}
+
+    path -->|POST /mcp/spark| spark[Allow → mcp-spark JSON-RPC]
+    path -->|POST /mcp/hive| hive[Allow → mcp-hive read-only]
+    path -->|POST /mcp/impala| impala[Allow → mcp-impala read-only]
+    path -->|GET/HEAD /cdp/livy_for_spark3*| livy[Allow Livy reads only]
+    path -->|GET/HEAD/PUT /cdp/webhdfs*| webhdfs[Allow operator HDFS staging]
+
+    path -->|/cdp/hive| hive404[404 unpublished]
+    path -->|/cdp/impala| impala404[404 unpublished]
+    path -->|other /cdp/* or raw services| blocked[404 not allowlisted]
+```
+
+On a live cluster that notebook path is what produces the Spark History, Data Catalog, and operator activity evidence below: `spark_submit_batch` writes `{user}.count_to_10` as the Knox subject, then Hive MCP selects it.
+
+![Third-party agent in Spark History: count-to-10 as the Knox subject](images/Spark_History_agentActivity.png)
+
+![Third-party agent in Data Catalog: access audits for count_to_10](images/CDP_agent_activity.png)
+
+![Third-party agent in operator console: Spark and Hive MCP activity](images/Agent_audit_activity.png)
 
 ## Use Case
 
-Phone support is still the primary contact channel for many telecom
-customers, and live agent capacity is expensive to scale. This blueprint
-shows a pattern for automating first-line phone support — greeting the
-caller by name, answering account questions (data usage, billing, plan
-options) using their real account context, and handing off gracefully —
-without requiring the caller to use an app, chatbot widget, or IVR menu
-tree. The same pattern generalizes to any inbound-call support use case
-beyond telecom.
+Enterprises need to **govern** coding and analytics agents that submit Spark jobs and query Hive or Impala on CDP. They cannot publish Livy, HiveServer2, or Impala to those tools, and they cannot mint a second identity plane. This blueprint gives one agent-facing address that allowlists Spark MCP plus read-only Hive and Impala MCP, binds each call to a Knox user, keeps Ranger in charge of data access, and gives operators quotas plus audit join — without replacing the CDP perimeter.
+
+## How this compares to AI gateways
+
+This is a **CDP agent gateway**, not an **AI gateway**. Products in the AI-gateway class — [Envoy AI Gateway](https://github.com/envoyproxy/ai-gateway), Kong AI Gateway, LiteLLM-style proxies, and similar — sit in front of **models**. They unify OpenAI-shaped APIs, inject provider keys, meter tokens, and fail over across OpenAI, Bedrock, Anthropic, and self-hosted inference. Some also **multiplex** other people's MCP servers.
+
+This blueprint sits in front of **Cloudera Data Platform** as an **agent governance** edge. Agents present a Knox JWT. MCP adapters **implement** Spark, Hive, and Impala tools and forward the same bearer. Knox stays the CDP perimeter. Ranger still authorizes the token `sub`. There is no LLM translation, no token spend cap, and no catch-all MCP multiplexer.
+
+They compose; they do not replace each other. A coding agent that reasons with an LLM and writes Iceberg via Livy wants an AI gateway on the model hop and this gateway on the lakehouse hop. Do not put Knox JWTs on the model path or provider API keys on Livy.
+
+| | This blueprint | AI gateways (e.g. Envoy AI Gateway) |
+| --- | --- | --- |
+| Job | Agent governance: agents → CDP (Spark / Hive / Impala) | Apps → GenAI providers and self-hosted models |
+| Identity | Knox RS256 JWT (`sub`, `knox.id`); Compose `X-Agent-Key` names the agent product | OAuth/OIDC to clients; API keys injected toward providers |
+| Authorization | Apache Ranger on the Knox subject | Gateway policy (token quotas, tool filters, CEL) |
+| MCP | Three adapters that **are** the tools (`/mcp/spark`, `/mcp/hive`, `/mcp/impala`); POST JSON-RPC | Multiplex N upstream MCP servers; often Streamable HTTP |
+| Rate limit | HTTP burst per Knox `sub` plus operator daily quotas | LLM tokens (input / output / cached / reasoning) |
+| Audit | Operator join of tool, Knox `sub`, `knox.id`, and `X-Request-Id` | Provider usage logs toward models |
+| Must not | Replace Knox, proxy raw Hive/Impala, mint a second user JWT | Validate Knox, honor Ranger, submit Livy batches |
+
+Architecture constraints: [docs/architecture.md](docs/architecture.md). Identity: [docs/identity-and-auth.md](docs/identity-and-auth.md).
 
 ## Key Features
 
-- **Not locked to any specific TTS/STT vendor.** There are many
-  speech-to-text and text-to-speech products on the market, and this
-  blueprint doesn't compete with them or depend on a particular one — it
-  demonstrates a pattern for wiring *any* TTS/STT provider into Cloudera AI
-  Inference Service. Speech-to-text already swaps between Deepgram, Cartesia,
-  or a Cloudera-hosted Whisper/Riva model via one config value; TTS ships
-  with a Cartesia implementation behind the same kind of interface. Both are
-  reference examples to adapt, not requirements.
-- **Real-time, bidirectional phone call handling** over a telephony
-  provider's streaming media API (Twilio in this reference implementation)
-  — no separate telephony infrastructure to stand up.
-- **LLM responses grounded in caller account context**, generated by
-  Cloudera AI Inference Service, including support for reasoning models
-  (with thinking-suppression and scratch-reasoning filtering built in — see
-  [`docs/architecture.md`](docs/architecture.md)).
-- **Live visual call-pipeline dashboard** for demos, showing each stage of
-  the pipeline lighting up as a real call happens.
-- **Swappable data layer**: caller context comes from a mock telecom
-  customer dataset behind a single lookup function, ready to be pointed at a
-  real CRM/billing system.
+- Agent governance — Knox identity, Ranger authorization, MCP allowlists, per-user quotas, and audit join
+- Knox JWT at the agent edge — no second token format, no APISIX-minted user credentials
+- Dual identity — Compose MCP `X-Agent-Key` names the agent product; Knox JWT `sub` / `knox.id` is the CDP user. AMP is JWT-only (CML project is the agent).
+- RFC 9728 PRM — `GET /.well-known/oauth-protected-resource`; `401 WWW-Authenticate` includes `resource_metadata`
+- Spark allowlist — MCP `/mcp/spark` (list, get, log, submit); Livy HTTP is GET/HEAD only; WebHDFS GET/HEAD/PUT for operator file staging
+- Hive MCP — `/mcp/hive` list/describe/select (no `SELECT *`, limit 50); `/cdp/hive` stays 404
+- Impala MCP — `/mcp/impala` list/describe/select (no `SELECT *`, limit 50); `/cdp/impala` stays 404
+- JDBC inventory — `gateway jdbc add` stores Knox Hive JDBC and/or CDW Impala JDBC; `gateway hive` / `gateway impala` list databases
+- Local-to-live — `gateway knox <livy-url>` points the same Compose file at external Knox
+- Operator admin UI — UTC-day usage, quotas vs burst 429s, audit join on localhost `:9090`
+- MCP burst cap — `limit-count` on `/mcp/spark`, `/mcp/hive`, and `/mcp/impala` keyed by Knox `sub` (default 60/minute)
+- Ranger stays authoritative — the gateway does not impersonate a different user than the token subject
+- Third-party agent notebooks — [`examples/agent/`](examples/agent/README.md) demos an MCP host (`third_party_agent.ipynb`) and a **LangGraph** ReAct agent (`langgraph_agent.ipynb`) against `/mcp/spark`, `/mcp/hive`, and `/mcp/impala`
 
-## Quickstart / Guide
+## Quickstart
 
-```bash
-git clone <this-repo>
-cd voice-ai-agent
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements-dev.txt
-python scripts/seed_customer_data.py
-cp .env.example .env   # fill in your API keys
-uvicorn app.main:app --reload --port 8090
-```
+1. Clone the repository.
+2. Install Docker and Python 3.11+ (`make` is optional).
+3. Create a virtualenv and install the CLI:
 
-That gets the app running locally against real STT/TTS/LLM APIs. To take a
-real phone call end to end (tunneling, Twilio webhook config, or a full CML
-deployment), see [`docs/setup.md`](docs/setup.md) and
-[`deploy/cml-deployment.md`](deploy/cml-deployment.md).
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -e ".[dev]"
+   ```
+
+4. Start the local stack and run tests:
+
+   ```bash
+   cp .env.example .env
+   gateway init
+   gateway up
+   gateway test
+   ```
+
+   `gateway` is the operator CLI (`python -m agentgateway` also works). `gateway test` overlays mock-cdp without rewriting a live `.env`, starts Compose, runs pytest (excluding live CDP), then restores APISIX yaml from `.env`. Commands: [docs/operator-cli.md](docs/operator-cli.md).
+
+5. Optional — point the same gateway at a live cluster:
+
+   ```bash
+   gateway knox https://knox.example.com/env/cdp-proxy-token/livy_for_spark3/
+   gateway jdbc add 'jdbc:impala://coordinator.example:443/default;AuthMech=12;transportMode=http;httpPath=cliservice;ssl=1;auth=browser'
+   gateway fetch-jwks --insecure
+   gateway token set
+   gateway up
+   gateway spark
+   gateway webhdfs ls /
+   gateway mcp
+   gateway hive              # SHOW DATABASES; needs pip install -e ".[hive]"
+   gateway mcp --adapter hive --tool hive_list_databases
+   gateway mcp --adapter impala --tool impala_list_databases
+   gateway admin --open      # http://127.0.0.1:9090
+   ```
+
+   `gateway knox` writes host, port, `cdp-proxy-token` prefix, and JWKS URL into `.env`. Spark: [docs/spark.md](docs/spark.md). Hive: [docs/hive.md](docs/hive.md). Impala: [docs/impala.md](docs/impala.md). Do not commit `.env`.
+
+6. Optional — demonstrate third-party agents with the notebooks in [`examples/agent/`](examples/agent/README.md). [`third_party_agent.ipynb`](examples/agent/third_party_agent.ipynb) is a scripted MCP host; [`langgraph_agent.ipynb`](examples/agent/langgraph_agent.ipynb) shows **LangGraph** ReAct over the same tools. Paste a Knox JWT in the notebook (`getpass`); do not put it in git or AMP project env. LangGraph locally: `pip install -e ".[langgraph]"`.
+
+7. Optional — Cloudera AI Workbench AMP (not Docker Compose). Live Knox only; `launchable` stays false until a workbench proof. How-to: [docs/amp.md](docs/amp.md).
+
+Do not commit Knox tokens, JDBC passwords, or private keys.
 
 ## Architecture / Software Components
 
-![Architecture diagram](assets/architecture.svg)
+Agents terminate at APISIX (Compose) or at a Cloudera AI Application (optional AMP). That edge is the **agent governance** hop: Knox JWT, caller key, allowlisted MCP, quotas, and audit. The `mcp-spark`, `mcp-hive`, and `mcp-impala` adapters sit behind it and forward the caller's Knox bearer to Livy, Hive, or Impala. Knox remains the only hop that presents cluster credentials. The admin UI is not an agent route (localhost `:9090` on Compose; CML login on AMP).
 
-A telephony provider (Twilio in this reference implementation) handles the
-PSTN call and streams audio to this app's FastAPI Application over a
-websocket. The app looks up the caller, streams their speech to an STT
-provider, sends the transcript plus account context to an LLM on Cloudera AI
-Inference Service, and speaks the reply back through a TTS provider
-(Cartesia by default). By default only the telephony, STT, and TTS legs are
-external services — the call orchestration and the LLM both run inside your
-Cloudera AI workbench. None of the three vendors shown are architecturally
-required: STT and TTS already sit behind swappable provider interfaces, and
-[`docs/architecture.md`](docs/architecture.md) covers what swapping the
-telephony provider itself would take.
+![CDP Agent Gateway traffic path](images/architecture.svg)
+
+Spark MCP is the published Spark path. Operators stage HDFS files at `/cdp/webhdfs*`. Hive MCP is read-only at `/mcp/hive`. Impala MCP is read-only at `/mcp/impala`. `/cdp/hive` and `/cdp/impala` stay **404**. JDBC inventory is `gateway jdbc add` / `gateway hive` / `gateway impala`.
+
+| Component | Role |
+| --- | --- |
+| Apache APISIX | Agent-facing HTTP edge (Compose): Knox JWT plugin, RFC 9728 PRM, MCP caller keys, allowlisted routes, request IDs |
+| Python `knox-jwt` | Same RS256 / `iss` / `exp` / `sub` checks for the optional CML AMP profile |
+| `knox-jwt` plugin | RS256, `iss=KNOXSSO`, expiry; pinned PEM; forwards `Authorization` |
+| `mcp-spark` | Livy MCP tools (list/get/log/submit); not an APISIX plugin |
+| `mcp-hive` | Hive MCP tools (list/describe/select); not an APISIX plugin |
+| `mcp-impala` | Impala MCP tools (list/describe/select); not an APISIX plugin |
+| Mock CDP (lab) | Stand-in Knox JWKS and Livy probes for `gateway test` |
+| Operator admin | Local UI on `:9090`: UTC-day usage, quotas vs burst 429s, audit join |
+| Apache Knox | Token issuance, `cdp-proxy-token`, Trusted Proxy / doAs |
+| Apache Ranger | Authorization for the Knox subject on Spark, Hive, Impala, and HDFS |
+
+| Agent URI | Methods | Upstream |
+| --- | --- | --- |
+| `/mcp/spark` | POST JSON-RPC | `mcp-spark` → Knox Livy |
+| `/mcp/hive` | POST JSON-RPC | `mcp-hive` → Knox Hive (read-only) |
+| `/mcp/impala` | POST JSON-RPC | `mcp-impala` → CDW `cliservice` or Knox Impala (read-only) |
+| `/cdp/livy_for_spark3*` | GET, HEAD | Knox Livy (operators/tests) |
+| `/cdp/webhdfs*` | GET, HEAD, PUT | Knox WebHDFS (operator staging) |
+| `/cdp/hive` | — | **404** (not published) |
+| `/cdp/impala` | — | **404** (not published) |
+
+Extended design: [docs/architecture.md](docs/architecture.md), [docs/amp.md](docs/amp.md), [docs/spark.md](docs/spark.md), [docs/hive.md](docs/hive.md), [docs/impala.md](docs/impala.md), [docs/admin.md](docs/admin.md), [docs/identity-and-auth.md](docs/identity-and-auth.md).
 
 ## Target Audience
 
-- Solutions engineers demoing Cloudera AI Inference Service in a live,
-  latency-sensitive conversational scenario.
-- ML/platform engineers evaluating how Cloudera AI Inference Service
-  integrates alongside third-party speech APIs.
-- Developers building or adapting a phone-based voice AI agent.
+- Platform and security architects who need **agent governance** on CDP without a second identity plane
+- Data engineers and SEs running a laptop lab against mock Knox or a VPN-connected cluster
+- Partner / ISV teams onboarding MCP hosts (Cursor, Claude) behind Knox
+- Cloudera AI Workbench operators who want an optional AMP profile against live Knox
 
 ## Repository Structure
 
 | Path | Description |
 | --- | --- |
-| `app/` | FastAPI application: call orchestration, STT/TTS/LLM provider integrations, mock data layer |
-| `assets/` | Architecture diagram |
-| `deploy/` | CML deployment guide (the actual deploy descriptor, `.project-metadata.yaml`, stays at repo root — CML reads it there) |
-| `docs/` | Extended documentation: architecture detail, setup, verification status |
-| `scripts/` | CML bootstrap tasks (install deps, seed mock data) and a local call-simulation harness |
-| `tests/` | Unit tests |
+| `images/` | Architecture diagram, AMP catalog cover, admin UI, Spark History, and Data Catalog screenshots |
+| `deploy/` | Docker Compose (APISIX, mock CDP, mcp-spark, mcp-hive, mcp-impala, admin) |
+| `docs/` | Architecture, Spark, Hive, Impala, admin, identity, AMP, phases, tests |
+| `LICENSE` | Apache License 2.0 |
 | `METADATA.yaml` | Catalog metadata for the Cloudera blueprint website |
-| `.project-metadata.yaml` | CML AMP spec (env vars + tasks) for one-import deployment |
-| `run_app.py` | CML Application entrypoint (uvicorn on `$CDSW_APP_PORT`) |
+| `.project-metadata.yaml` | Optional CML AMP runbook (`launchable` is still false) |
+| `0_`–`7_` AMP dirs | CML jobs/apps; ignored by Compose |
+| `conf/` | APISIX standalone config templates |
+| `plugins/` | Custom `knox-jwt` APISIX plugin |
+| `inventory/` | Phase 0 CDP inventory consumed by tests |
+| `src/agentgateway/` | Operator CLI (`gateway` / `python -m agentgateway`) |
+| `pyproject.toml` | Package metadata and dependency extras (`dev`, `mcp`, `admin`, `hive`, `amp`, `langgraph`) |
+| `mcp-spark/` | Livy Spark 3 MCP adapter |
+| `mcp-hive/` | Hive MCP adapter (read-only) |
+| `mcp-impala/` | Impala MCP adapter (read-only) |
+| `admin/` | Operator usage/quota UI (`127.0.0.1:9090`) |
+| `examples/spark/` | Sample Spark 3 batch (`count_to_10.py`) that writes Iceberg for Hive |
+| `examples/hive/` | Query that table with Hive MCP (`hive_list_tables` / `hive_describe_table` / `hive_select`) |
+| `examples/impala/` | Same Iceberg table through Impala MCP when metadata is visible |
+| `examples/agent/` | Third-party agent demo notebooks: scripted MCP host (`third_party_agent.ipynb`) and **LangGraph** ReAct (`langgraph_agent.ipynb`) |
+| `tests/` | Inventory, CLI, gateway, and MCP pytest |
+| `AGENTS.md` | Instructions for coding agents |
+| `.cursor/rules/` | Cursor project rules |
+| `AgentGateway.code-workspace` | Cursor / VS Code workspace |
+
+Open `AgentGateway.code-workspace` in Cursor so project rules load with the repo.
 
 ## Prerequisites
 
-- A Cloudera AI (CML) workspace with Cloudera AI Inference Service access,
-  and an LLM (instruct or reasoning model) deployed as an endpoint there.
-- A telephony provider account capable of streaming call audio over a
-  websocket. This repo is wired up against
-  [Twilio](https://console.twilio.com) (voice-capable phone number) as a
-  reference example.
-- STT and TTS provider accounts of your choice. This repo ships wired up
-  against [Deepgram](https://console.deepgram.com) (default STT) and
-  [Cartesia](https://play.cartesia.ai) (TTS, and optionally STT) as reference
-  examples — any other STT/TTS vendor works the same way behind the
-  `STTProvider`/`TTSProvider` interfaces (see
-  [`docs/architecture.md`](docs/architecture.md)).
-- git and Python 3.10+ for local development.
+- Git, Docker Desktop (or Engine + Compose v2), Python 3.11+
+- `pip install -e ".[dev]"` installs the `gateway` CLI (`make` is optional)
+- Compose service images install from the same file: `.[mcp]`, `.[mcp,hive]`, `.[admin]`
+- `pip install -e ".[amp]"` only for the Cloudera AI Workbench profile
+- `pip install -e ".[hive]"` only if you run `gateway hive` (impyla)
+- Optional: `pip install -e ".[langgraph]"` for the LangGraph agent notebook (langchain-core 0.3.x locally; the AMP install cell matches CML langchain 0.2 or 0.3)
+- Local demo: no CDP entitlement; mock Knox runs in Compose
+- Live cluster: CDP Private Cloud Base or Public Cloud, VPN or allowlisted laptop, Knox Token API / Token Generation, JWKS URL, Ranger-allowed test user
+- Optional AMP: Cloudera AI Workbench that can reach Knox; not Docker-in-CML
+- Secrets belong in `.env` (from `.env.example`) or CML project env, never in git or inventory markdown
 
 ## Hardware Requirements
 
 | Deployment | Minimum |
 | --- | --- |
-| Launchable / demo (this CML Application + its bootstrap tasks) | 2 CPU, 4 GB RAM for the Application; 1 CPU, 2 GB RAM per bootstrap task |
-| Production / enterprise | Same as above for this app -- it does no local inference. The LLM's own Cloudera AI Inference Service endpoint sizing (CPU/GPU/memory) depends entirely on the model deployed there. |
-
-This app has no local speaker/microphone requirement — the call audio flows
-through Twilio's PSTN connection, not the machine running CML. See
-[`deploy/cml-deployment.md`](deploy/cml-deployment.md#hardware-sizing) for
-the full breakdown.
+| Launchable / demo (local Docker) | 2 CPU, 4 GB RAM, 10 GB disk |
+| Optional AMP: Workbench Python 3.11 or greater: install session 1 CPU / 2 GB; each MCP app 1 CPU / 1 GB; APISIX app 1 CPU / 1.5 GB |
+| Production / enterprise (APISIX in front of Knox) | Size APISIX for agent QPS; CDP/Knox/Ranger sizing is unchanged. Plan extra RAM if MCP adapters and long Spark jobs share the same host |
 
 ## Documentation
 
-- [`docs/architecture.md`](docs/architecture.md) — full call flow, project
-  layout, STT provider tradeoffs, reasoning-model handling
-- [`docs/setup.md`](docs/setup.md) — external service setup and local
-  development
-- [`docs/verification.md`](docs/verification.md) — what's been verified,
-  what still needs live credentials, known v1 limitations
-- [`deploy/cml-deployment.md`](deploy/cml-deployment.md) — CML deployment
-  steps and hardware sizing
-- [CML Applications documentation](https://docs.cloudera.com/machine-learning/cloud/applications/topics/ml-applications.html)
+- [Architecture](docs/architecture.md)
+- [Optional Cloudera AI AMP](docs/amp.md)
+- [Working with Spark](docs/spark.md)
+- [Working with Hive](docs/hive.md)
+- [Working with Impala](docs/impala.md)
+- [Operator admin UI](docs/admin.md)
+- [Identity and authentication](docs/identity-and-auth.md)
+- [Operator CLI](docs/operator-cli.md)
+- [Build phases](docs/phases.md)
+- [Phase 0 inventory](docs/phase-0-inventory.md)
+- [Test cases](docs/testing.md)
+- [Third-party agent notebooks](examples/agent/README.md) (scripted MCP host and LangGraph)
+- [Agent instructions](AGENTS.md)
+- [Cloudera Knox Token API](https://docs.cloudera.com/runtime/7.3.1/knox-authentication/topics/security-knox-token-api.html)
+- [APISIX Learning Center](https://apisix.apache.org/learning-center/)
+- [API Gateway Authentication](https://apisix.apache.org/learning-center/api-gateway-authentication/)
+- [Cloudera Blueprints Standard](https://github.com/kevinbtalbert/Cloudera-Blueprints-Standard)
 
 ## License
 
 Copyright 2026 Cloudera, Inc.
 
 Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE).
-
-## Disclaimer
-
-*This blueprint is intended for Proof-of-Concept and research use only. It is not designed for production deployment. Use in production environments is at the user's own risk. The authors and contributors accept no liability for operational impacts or damages.*
