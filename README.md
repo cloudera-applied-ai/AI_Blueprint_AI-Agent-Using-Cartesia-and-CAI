@@ -1,9 +1,9 @@
 # Cloudera Blueprint: AI Agent Using Cartesia and CAI
 
+[![Author-Athul Prasad](https://img.shields.io/badge/Author-Athul%20Prasad-555555)](https://github.com/athpra)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](requirements.txt)
 [![Cloudera Blueprint](https://img.shields.io/badge/Cloudera-Blueprint-f96702.svg)](METADATA.yaml)
-[![Author-Athul Prasad](https://img.shields.io/badge/Author-Athul%20Prasad-555555)]()
 [![Stars](https://img.shields.io/github/stars/cloudera-applied-ai/AI_Blueprint_AI-Agent-Using-Cartesia-and-CAI?logo=github&cacheSeconds=300)](https://github.com/cloudera-applied-ai/AI_Blueprint_AI-Agent-Using-Cartesia-and-CAI/stargazers)
 [![Forks](https://img.shields.io/github/forks/cloudera-applied-ai/AI_Blueprint_AI-Agent-Using-Cartesia-and-CAI?logo=github&cacheSeconds=300)](https://github.com/cloudera-applied-ai/AI_Blueprint_AI-Agent-Using-Cartesia-and-CAI/network/members)
 
