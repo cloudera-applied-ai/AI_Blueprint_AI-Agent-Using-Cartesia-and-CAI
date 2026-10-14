@@ -1,0 +1,400 @@
+================================================================================
+================================================================================
+
+                Third-Party Software for AI Agent Using Cartesia and CAI
+
+--------------------------------------------------------------------------------
+
+The product or component covered by this notice file is subject to copyright owned by Cloudera, the Apache Software Foundation or other third parties, as applicable, and the copyright owner reserves all rights.
+
+The following notices and licenses apply to various third party software packages, including open source software packages, which are distributed with the product identified in this file or accompanying this file.  Such product (i) may not include all of the referenced third party software packages or include only a portion of a given package and (ii) may also include other components, which may contain additional third party software packages as identified in their separate respective notice files.
+
+To the extent required by the license associated with a third party software package, Cloudera, Inc. will provide a copy of the third party software package’s source code upon request and at a reasonable fee.  All requests for source code must be made in writing and mailed to "Cloudera, Inc., ATTN: Legal Dept.,5470 Great America Pkwy, Santa Clara, CA 95054" and include the following information: (i) the name and version number of the covered binary, (ii) name and the version number of the Cloudera product containing the covered binary, (iii) your name, (iv) your company or organization name (if applicable), (v) the license under which you are requesting the source code to be provided, and (vi) your return mailing and email address (if available).
+
+The following 3rd-party software packages may be used by or distributed with voice-ai (RELENG-37871). Any information relevant to third-party vendors listed below are collected using common, reasonable means.
+
+Date generated: 2026-10-7
+
+Revision ID: 89ced989337cfbcfc51fdbe76d10dd95f093f1ed
+
+================================================================================
+================================================================================
+
+
+
+================================================================================
+
+                                  Dependencies
+
+================================================================================
+
+- fastapi (0.115.6) [MIT, Apache-2.0]
+- httpx (0.28.1) [BSD-3-Clause]
+- nest-asyncio (1.6.0) [BSD-3-Clause, BSD-2-Clause]
+- openai (1.59.6) [Apache-2.0]
+- pydantic-settings (2.7.1) [MIT]
+- pytest (8.3.4) [MIT]
+- python-dotenv (1.0.1) [BSD-3-Clause]
+- python-multipart (0.0.20) [Apache-2.0]
+- twilio (9.4.3) [MIT]
+- uvicorn (0.34.0) [BSD-3-Clause]
+- websockets (14.1) [BSD-3-Clause]
+
+--------------------------------------------------------------------------------
+Package Title: fastapi (0.115.6)
+
+Package Locator: pip+fastapi$0.115.6
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+FastAPI framework, high performance, easy to learn, fast to code, ready for production
+
+* Declared Licenses *
+MIT
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE
+  - Copyright (c) 2018 Sebastián Ramírez
+--------------------------------------------------------------------------------
+
+* Other Licenses *
+Apache-2.0
+--------------------------------------------------------------------------------
+File matches:
+- fastapi/applications.py
+--------------------------------------------------------------------------------
+
+* Copyrights *
+MIT
+- Copyright (c) 2018 Sebastián Ramírez
+
+* Package Info *
+
+Authors: Sebastián Ramírez <tiangolo@gmail.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/fastapi/
+Package Download URL: https://files.pythonhosted.org/packages/93/72/d83b98cd106541e8f5e5bfab8ef2974ab45a62e8a6c5b5e6940f26d2ed4b/fastapi-0.115.6.tar.gz
+Dependency Path: fastapi
+
+--------------------------------------------------------------------------------
+Package Title: httpx (0.28.1)
+
+Package Locator: pip+httpx$0.28.1
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+The next generation HTTP client.
+
+* Declared Licenses *
+BSD-3-Clause
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE.md
+  - Copyright (c) 2019 Encode OSS Ltd](https://www.encode.io/).
+--------------------------------------------------------------------------------
+
+* Copyrights *
+BSD-3-Clause
+- Copyright (c) 2019 Encode OSS Ltd](https://www.encode.io/).
+
+* Package Info *
+
+Authors: Tom Christie <tom@tomchristie.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/httpx/
+Package Download URL: https://files.pythonhosted.org/packages/b1/df/48c586a5fe32a0f01324ee087459e112ebb7224f646c0b5023f5e79e9956/httpx-0.28.1.tar.gz
+Dependency Path: httpx
+
+--------------------------------------------------------------------------------
+Package Title: nest-asyncio (1.6.0)
+
+Package Locator: pip+nest-asyncio$1.6.0
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+Patch asyncio to allow nested event loops
+
+* Declared Licenses *
+BSD-3-Clause, BSD-2-Clause
+
+* BSD-3-Clause *
+
+* BSD-2-Clause *
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE
+  - Copyright (c) 2018-2020 Ewald de Wit
+--------------------------------------------------------------------------------
+
+* Copyrights *
+BSD-2-Clause
+- Copyright (c) 2018-2020 Ewald de Wit
+
+* Package Info *
+
+Authors: ewald.de.wit@gmail.com
+Package Manager: Pip
+Project URL: https://github.com/erdewit/nest_asyncio
+Package Download URL: https://files.pythonhosted.org/packages/83/f8/51569ac65d696c8ecbee95938f89d4abf00f47d58d48f6fbabfe8f0baefe/nest_asyncio-1.6.0.tar.gz
+Dependency Path: nest-asyncio
+
+--------------------------------------------------------------------------------
+Package Title: openai (1.59.6)
+
+Package Locator: pip+openai$1.59.6
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+The official Python library for the openai API
+
+* Declared Licenses *
+Apache-2.0
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE
+  - Copyright (c) 2025 OpenAI
+--------------------------------------------------------------------------------
+
+* Copyrights *
+Apache-2.0
+- Copyright (c) 2025 OpenAI
+
+* Package Info *
+
+Authors: OpenAI <support@openai.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/openai/
+Package Download URL: https://files.pythonhosted.org/packages/2e/7a/07fbe7bdabffd0a5be1bfe5903a02c4fff232e9acbae894014752a8e4def/openai-1.59.6.tar.gz
+Dependency Path: openai
+
+--------------------------------------------------------------------------------
+Package Title: pydantic-settings (2.7.1)
+
+Package Locator: pip+pydantic-settings$2.7.1
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+Settings management using Pydantic
+
+* Declared Licenses *
+MIT
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE
+  - Copyright (c) 2022 Samuel Colvin and other contributors
+--------------------------------------------------------------------------------
+
+* Copyrights *
+MIT
+- Copyright (c) 2022 Samuel Colvin and other contributors
+
+* Package Info *
+
+Authors: Samuel Colvin <s@muelcolvin.com>, Eric Jolibois <em.jolibois@gmail.com>, Hasan Ramezani <hasan.r67@gmail.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/pydantic-settings/
+Package Download URL: https://files.pythonhosted.org/packages/73/7b/c58a586cd7d9ac66d2ee4ba60ca2d241fa837c02bca9bea80a9a8c3d22a9/pydantic_settings-2.7.1.tar.gz
+Dependency Path: pydantic-settings
+
+--------------------------------------------------------------------------------
+Package Title: pytest (8.3.4)
+
+Package Locator: pip+pytest$8.3.4
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+pytest: simple powerful testing with Python
+
+* Declared Licenses *
+MIT
+--------------------------------------------------------------------------------
+File matches:
+- doc/en/license.rst
+  - Copyright (c) 2004 Holger Krekel and others
+- LICENSE
+  - Copyright (c) 2004 Holger Krekel and others
+- testing/example_scripts/junit-10.xsd
+  - Copyright (c) 2014 Gregory Boissinot
+--------------------------------------------------------------------------------
+
+* Copyrights *
+MIT
+- Copyright (c) 2004 Holger Krekel and others
+- Copyright (c) 2014 Gregory Boissinot
+
+* Package Info *
+
+Authors: Brianna Laugher, Bruno Oliveira, Floris Bruynooghe, Freya Bruhin, Holger Krekel, Others (See AUTHORS), Ronny Pfannschmidt
+Package Manager: Pip
+Project URL: https://pypi.org/project/pytest/
+Package Download URL: https://files.pythonhosted.org/packages/05/35/30e0d83068951d90a01852cb1cef56e5d8a09d20c7f511634cc2f7e0372a/pytest-8.3.4.tar.gz
+Dependency Path: pytest
+
+--------------------------------------------------------------------------------
+Package Title: python-dotenv (1.0.1)
+
+Package Locator: pip+python-dotenv$1.0.1
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+Read key-value pairs from a .env file and set them as environment variables
+
+* Declared Licenses *
+BSD-3-Clause
+--------------------------------------------------------------------------------
+File matches:
+- docs/license.md
+  - Copyright (c) 2014 Saurabh Kumar (python-dotenv), 2013, Ted Tieken (django-dotenv-rw), 2013, Jacob Kaplan-Moss (django-dotenv)
+- LICENSE
+  - Copyright (c) 2014 Saurabh Kumar (python-dotenv), 2013, Ted Tieken (django-dotenv-rw), 2013, Jacob Kaplan-Moss (django-dotenv)
+- setup.py
+--------------------------------------------------------------------------------
+
+* Copyrights *
+BSD-3-Clause
+- Copyright (c) 2014 Saurabh Kumar (python-dotenv), 2013, Ted Tieken (django-dotenv-rw), 2013, Jacob Kaplan-Moss (django-dotenv)
+
+* Package Info *
+
+Authors: Saurabh Kumar <me+github@saurabh-kumar.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/python-dotenv/
+Package Download URL: https://files.pythonhosted.org/packages/bc/57/e84d88dfe0aec03b7a2d4327012c1627ab5f03652216c63d49846d7a6c58/python-dotenv-1.0.1.tar.gz
+Dependency Path: python-dotenv
+
+--------------------------------------------------------------------------------
+Package Title: python-multipart (0.0.20)
+
+Package Locator: pip+python-multipart$0.0.20
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+A streaming multipart parser for Python
+
+* Declared Licenses *
+Apache-2.0
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE.txt
+  - Copyright (c) 2012 Andrew Dunham
+--------------------------------------------------------------------------------
+
+* Copyrights *
+Apache-2.0
+- Copyright (c) 2012 Andrew Dunham
+
+* Package Info *
+
+Authors: Andrew Dunham <andrew@du.nham.ca>
+Package Manager: Pip
+Project URL: https://pypi.org/project/python-multipart/
+Package Download URL: https://files.pythonhosted.org/packages/f3/87/f44d7c9f274c7ee665a29b885ec97089ec5dc034c7f3fafa03da9e39a09e/python_multipart-0.0.20.tar.gz
+Dependency Path: python-multipart
+
+--------------------------------------------------------------------------------
+Package Title: twilio (9.4.3)
+
+Package Locator: pip+twilio$9.4.3
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+Twilio API client and TwiML generator
+
+* Declared Licenses *
+MIT
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE
+  - Copyright (c) 2023 Twilio, Inc. <https://www.twilio.com/help/contact>
+- setup.py
+--------------------------------------------------------------------------------
+
+* Copyrights *
+MIT
+- Copyright (c) 2023 Twilio, Inc. <https://www.twilio.com/help/contact>
+
+* Package Info *
+
+Authors: Twilio
+Package Manager: Pip
+Project URL: https://github.com/twilio/twilio-python/
+Package Download URL: https://files.pythonhosted.org/packages/fd/a5/23d9ab48ff0e285ef63126e595394a50fe07bfc00f2634a8beba505069a9/twilio-9.4.3.tar.gz
+Dependency Path: twilio
+
+--------------------------------------------------------------------------------
+Package Title: uvicorn (0.34.0)
+
+Package Locator: pip+uvicorn$0.34.0
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+The lightning-fast ASGI server.
+
+* Declared Licenses *
+BSD-3-Clause
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE.md
+  - Copyright (c) 2017 present, [Encode OSS Ltd](https://www.encode.io/).
+- uvicorn/_types.py
+  - Copyright (c)  Django Software Foundation and individual contributors.
+--------------------------------------------------------------------------------
+
+* Copyrights *
+BSD-3-Clause
+- Copyright (c) 2017 present, [Encode OSS Ltd](https://www.encode.io/).
+- Copyright (c)  Django Software Foundation and individual contributors.
+
+* Package Info *
+
+Authors: Tom Christie <tom@tomchristie.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/uvicorn/
+Package Download URL: https://files.pythonhosted.org/packages/4b/4d/938bd85e5bf2edeec766267a5015ad969730bb91e31b44021dfe8b22df6c/uvicorn-0.34.0.tar.gz
+Dependency Path: uvicorn
+
+--------------------------------------------------------------------------------
+Package Title: websockets (14.1)
+
+Package Locator: pip+websockets$14.1
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+An implementation of the WebSocket Protocol (RFC 6455 & 7692)
+
+* Declared Licenses *
+BSD-3-Clause
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE
+  - Copyright (c)  Aymeric Augustin and contributors
+--------------------------------------------------------------------------------
+
+* Copyrights *
+BSD-3-Clause
+- Copyright (c)  Aymeric Augustin and contributors
+
+* Package Info *
+
+Authors: Aymeric Augustin <aymeric.augustin@m4x.org>
+Package Manager: Pip
+Project URL: https://pypi.org/project/websockets/
+Package Download URL: https://files.pythonhosted.org/packages/f4/1b/380b883ce05bb5f45a905b61790319a28958a9ab1e4b6b95ff5464b60ca1/websockets-14.1.tar.gz
+Dependency Path: websockets
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+Report Generated by FOSSA on 2026-10-7
