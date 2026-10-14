@@ -7,7 +7,7 @@
 name: "AI Agent Using Cartesia and CAI"
 slug: "ai-agent-using-cartesia-and-cai"
 description: "Real-time voice AI agent for phone-based customer support: transcribes live calls, looks up caller account context, generates a response with an LLM on Cloudera AI Inference Service, and speaks the reply back -- orchestrated end to end from a single CML Application."
-reprise_link: ""                             # TODO: no Reprise demo recorded yet
+reprise_link: "https://app.getreprise.com/present/5Xaz9ey"
 
 # --- Classification (website filters) ---
 catalog_classification:

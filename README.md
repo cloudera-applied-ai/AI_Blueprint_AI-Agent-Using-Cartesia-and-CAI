@@ -41,9 +41,9 @@ the constant is Cloudera AI Inference Service driving the conversation.
 
 ## Demo
 
-No recorded Reprise walkthrough yet — TODO once one is produced.
+- **Interactive walkthrough:** [Reprise demo](https://app.getreprise.com/present/5Xaz9ey)
 
-In the meantime, the app ships its own live demo: the `/dashboard` page
+The app also ships its own live demo: the `/dashboard` page
 lights up in real time as a call moves through Twilio → STT → LLM → TTS, and
 its "simulate" trigger (`POST /dashboard/simulate`) plays a canned call
 through that same dashboard with no Twilio call required, for rehearsing
